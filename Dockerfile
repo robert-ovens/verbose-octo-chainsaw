@@ -7,9 +7,7 @@ WORKDIR /app
 
 # Download Go modules
 COPY api ./api/
-COPY internal ./internal/
-COPY models ./models/
-COPY web ./web/
+COPY backend ./backend/
 COPY main.go .
 COPY go.mod .
 COPY go.sum .
