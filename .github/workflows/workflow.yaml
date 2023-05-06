@@ -1,0 +1,120 @@
+name: Build, Test, Deploy
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches:
+    - '*'
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # The "build" workflow
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v3
+    - run: |-
+        gcloud --quiet auth configure-docker
+    # Setup Go
+    - name: Setup Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.20.3' # The Go version to download (if necessary) and use.
+    - name: OpenAPI Generator Action
+      uses: kpurdon/openapi-generator-action@v0.0.3
+      with:
+        args: "generate -i openapi/openapi.yaml  -c openapi_config.yaml -g go-server -o ./ -p packageName=docgen -p sourceFolder=api" 
+    # Install all the dependencies
+    - name: Install dependencies
+      run: |
+        go version
+        go get -u golang.org/x/lint/golint
+        go install golang.org/x/tools/cmd/goimports@latest
+    - name: fix imports
+      run: goimports -w .
+    # Run build of the application
+    - name: Run build
+      run: go build . 
+    - name: Run tests
+      # run: go test ./...
+      run: go test -json ./... > test.json
+    - uses: deblockt/cucumber-report-annotations-action@v1.7
+      if: always()
+      with:
+        access-token: ${{ secrets.GITHUB_TOKEN }}
+        path: "report.json"
+  openapi:
+    runs-on: ubuntu-latest
+    needs: [build] # Only run this workflow when "build" workflow succeeds
+    if: github.event_name == 'push' #  Only run this workflow if it is main branch on push event
+    outputs:
+      new_release_version: ${{steps.semrel.outputs.new_release_version}}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Semantic Release
+      id: semrel
+      uses: cycjimmy/semantic-release-action@v3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: update openapi spec with semver
+      id: update_openapi_spec_with_semver
+      if: steps.semrel.outputs.new_release_version != ''
+      run: |-
+        sed -i 's/version: [0-9a-zA-Z.-]*/version: ${{steps.semrel.outputs.new_release_version}}/g' api/openapi.yaml
+        sed -i 's/version: [0-9a-zA-Z.-]*/version: ${{steps.semrel.outputs.new_release_version}}/g' openapi/openapi.yaml
+        git add api/openapi.yaml
+        git config --global user.name "Github Actions"
+        git config --global user.email "robert.ovens@gmail.com"
+        git commit -m "update openapi spec version to ${{steps.semrel.outputs.new_release_version}}"
+        
+        git push origin ${{github.head_ref}} --quiet
+    - name: Upload openapi.yaml
+      id: publish_openapi_artifact
+      if: steps.semrel.outputs.new_release_version != ''
+      uses: actions/upload-artifact@v2
+      with:
+        name: openapi
+        path: api/openapi.yaml
+  # The "deploy" workflow
+  publish-api:
+    runs-on: ubuntu-latest
+    if: ${{needs.openapi.outputs.new_release_version != ''}}
+    needs: [openapi] # Only run this workflow when "build" workflow succeeds
+    steps:
+    - uses: actions/checkout@v3
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: ${{ secrets.GKE_SA_KEY }}
+    - uses: google-github-actions/setup-gcloud@v1
+    - run: |-
+        gcloud --quiet auth configure-docker
+    - name: Download openapi.yaml
+      uses: actions/download-artifact@v2
+      with:
+        name: openapi
+        path: temp
+    - run: ls -R
+    - name: redoc-cli 
+      uses: seeebiii/redoc-cli-github-action@v10
+      with:
+        args: 'bundle temp/openapi.yaml -o web/redoc.html'
+    - name: build
+      env:
+          VERSION: ${{needs.openapi.outputs.new_release_version}}
+      run: |-
+        docker build \
+        --tag "asia.gcr.io/${{ vars.GKE_PROJECT }}/${{ vars.IMAGE_NAME }}:$VERSION" \
+        --build-arg GITHUB_SHA="$GITHUB_SHA" \
+        --build-arg GITHUB_REF="$GITHUB_REF" \
+        --build-arg VERSION="$VERSION" \
+        .   
+    - name: publish
+      env:
+        VERSION: ${{needs.openapi.outputs.new_release_version}}
+      run: |-
+        docker push "asia.gcr.io/${{ vars.GKE_PROJECT }}/${{ vars.IMAGE_NAME }}:$VERSION"

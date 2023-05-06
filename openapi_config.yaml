@@ -1,0 +1,5 @@
+templateDir: .openapi-templates
+files:
+  controller-api.mustache:
+    templateType: API
+    destinationFilename: .go

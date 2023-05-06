@@ -1,0 +1,31 @@
+{
+  "name": "compute",
+  "version": "0.0.0-development",
+  "description": "Compute API",
+  "main": "index.js",
+  "private": true,
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "semantic-release": "^21.0.1"
+  },
+  "devDependencies": {
+    "semantic-release": "^21.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "semantic-release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robert-ovens/verbose-octo-chainsaw.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robert-ovens/verbose-octo-chainsaw/issues"
+  },
+  "homepage": "https://github.com/robert-ovens/verbose-octo-chainsaw#readme"
+ 
+}

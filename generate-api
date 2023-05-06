@@ -1,0 +1,13 @@
+#!/bin/sh
+
+docker run --rm \
+    --user $(id -u):$(id -g) \
+    -w "/local" \
+    -v "${PWD}:/local" openapitools/openapi-generator-cli:v6.5.0 generate \
+    -i openapi/openapi.yaml \
+    -g go-server \
+    -p packageName=compute \
+    -p sourceFolder=api \
+    -o ./
+
+~/go/bin/goimports -w .

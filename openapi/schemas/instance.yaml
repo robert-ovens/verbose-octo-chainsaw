@@ -1,0 +1,16 @@
+type: object
+title: Instance
+properties:
+  image:
+    type: string
+  swapSize:
+    type: string
+  type:
+    type: string
+  label:
+    type: string
+required:
+  - image
+  - swap_size
+  - type
+  - label

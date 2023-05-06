@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  description: |
+    Manage instances in cloud.
+  title: compute
+  version: 0.1.0
+servers:
+- description: production
+  url: https://compute.api.growd.io
+- description: development
+  url: https://compute.api.local.growd.io
+paths:
+  /:
+    get:
+      description: List the instances
+      operationId: list
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetInstanceResponse'
+          description: ok
+      summary: list instances
+components:
+  responses:
+    GetInstanceReponse:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GetInstanceResponse'
+      description: ok
+  schemas:
+    Instance:
+      properties:
+        image:
+          type: string
+        swapSize:
+          type: string
+        type:
+          type: string
+        label:
+          type: string
+      required:
+      - image
+      - label
+      - type
+      title: Instance
+      type: object
+    CreatedInstance:
+      allOf:
+      - $ref: '#/components/schemas/Instance'
+      example:
+        id: id
+      properties:
+        id:
+          type: string
+      required:
+      - id
+    GetInstanceResponse:
+      example:
+        instances:
+        - id: id
+        - id: id
+      properties:
+        instances:
+          items:
+            $ref: '#/components/schemas/CreatedInstance'
+          type: array
+      title: GetInstanceResponse
+      type: object
