@@ -24,7 +24,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /compute
 FROM scratch AS runtime
 COPY --from=build /compute ./
 COPY --from=build app/openapi.yaml ./api/openapi.yaml
-COPY --from=build app/web ./web/
 
 # Optional:
 # To bind to a TCP port, runtime parameters must be supplied to the docker command.
