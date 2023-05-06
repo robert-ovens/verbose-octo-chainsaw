@@ -3,7 +3,7 @@ info:
   description: |
     Manage instances in cloud.
   title: compute
-  version: 1.1.0-status.3
+  version: 1.1.0
 servers:
 - description: production
   url: https://compute.api.growd.io
