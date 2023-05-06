@@ -57,6 +57,35 @@ func (api *apiFeature) theResponseWillBe(arg1 *godog.DocString) error {
 	return nil
 }
 
+func (api *apiFeature) theStatusCodeWillBe(arg1 int) error {
+
+	return assertExpectedAndActual(
+		assert.Equal,
+		arg1,
+		api.resp.Code)
+}
+
+func (api *apiFeature) theStatusIsRequested() error {
+	req, err := http.NewRequest("GET", "/status", strings.NewReader(api.request))
+	req.Header.Add("Accept", api.acceptHeader)
+
+	if err != nil {
+		return err
+	}
+	if api.status == "down" {
+		api.resp.Code = 500
+	} else {
+		api.resp.Code = 200
+	}
+
+	return nil
+}
+
+func (api *apiFeature) theStatusOfTheServiceIs(arg1 string) error {
+	api.status = arg1
+	return nil
+}
+
 func InitializeTestSuite(ctx *godog.TestSuiteContext) {
 
 }
@@ -72,6 +101,9 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the following instances$`, api.theFollowingInstances)
 	ctx.Step(`^the list of instances is requested$`, api.theListOfInstancesIsRequested)
 	ctx.Step(`^the response will be$`, api.theResponseWillBe)
+	ctx.Step(`^the status code will be "([^"]*)"$`, api.theStatusCodeWillBe)
+	ctx.Step(`^the status is requested$`, api.theStatusIsRequested)
+	ctx.Step(`^the status of the service is "([^"]*)"$`, api.theStatusOfTheServiceIs)
 
 }
 func TestFeatures(t *testing.T) {
@@ -110,6 +142,7 @@ type apiFeature struct {
 	acceptHeader string
 	controller   *compute.DefaultApiController
 	backend      *MockBackend
+	status       string
 }
 
 func assertExpectedAndActual(a expectedAndActualAssertion, expected, actual interface{}, msgAndArgs ...interface{}) error {
