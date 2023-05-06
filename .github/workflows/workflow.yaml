@@ -5,7 +5,7 @@ name: Build, Test, Deploy
 on:
   push:
     branches:
-    - '*'
+    - 'main'
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # The "build" workflow
@@ -108,7 +108,7 @@ jobs:
           VERSION: ${{needs.openapi.outputs.new_release_version}}
       run: |-
         docker build \
-        --tag "asia.gcr.io/${{ vars.GKE_PROJECT }}/${{ vars.IMAGE_NAME }}:$VERSION" \
+        --tag "asia.gcr.io/${{ secrets.GKE_PROJECT }}/${{ secrets.IMAGE_NAME }}:$VERSION" \
         --build-arg GITHUB_SHA="$GITHUB_SHA" \
         --build-arg GITHUB_REF="$GITHUB_REF" \
         --build-arg VERSION="$VERSION" \
@@ -117,4 +117,4 @@ jobs:
       env:
         VERSION: ${{needs.openapi.outputs.new_release_version}}
       run: |-
-        docker push "asia.gcr.io/${{ vars.GKE_PROJECT }}/${{ vars.IMAGE_NAME }}:$VERSION"
+        docker push "asia.gcr.io/${{ secrets.GKE_PROJECT }}/${{ secrets.IMAGE_NAME }}:$VERSION"
