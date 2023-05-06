@@ -40,6 +40,11 @@ func (s *DefaultApiService) Create(ctx context.Context, instance Instance) (Impl
 	return Response(http.StatusNotImplemented, nil), errors.New("Create method not implemented")
 }
 
+func (s *DefaultApiService) Status(ctx context.Context) (ImplResponse, error) {
+
+	return Response(http.StatusOK, nil), nil
+}
+
 // List - list instances
 func (s *DefaultApiService) List(ctx context.Context) (ImplResponse, error) {
 

@@ -3,7 +3,7 @@ info:
   description: |
     Manage instances in cloud.
   title: compute
-  version: 1.0.3
+  version: 1.1.0-status.3
 servers:
 - description: production
   url: https://compute.api.growd.io
@@ -22,6 +22,14 @@ paths:
                 $ref: '#/components/schemas/GetInstanceResponse'
           description: ok
       summary: list instances
+  /status:
+    get:
+      description: Get the status of the service
+      operationId: status
+      responses:
+        "200":
+          description: ok
+      summary: status
 components:
   responses:
     GetInstanceReponse:

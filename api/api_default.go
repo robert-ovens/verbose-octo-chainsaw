@@ -53,12 +53,31 @@ func (c *DefaultApiController) Routes() Routes {
 			"/",
 			c.List,
 		},
+		{
+			"Status",
+			strings.ToUpper("Get"),
+			"/status",
+			c.Status,
+		},
 	}
 }
 
 // List - list instances
 func (c *DefaultApiController) List(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.List(r.Context())
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// Status - status
+func (c *DefaultApiController) Status(w http.ResponseWriter, r *http.Request) {
+	result, err := c.service.Status(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

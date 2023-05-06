@@ -8,6 +8,7 @@ WORKDIR /app
 # Download Go modules
 COPY api ./api/
 COPY backend ./backend/
+COPY web ./web/
 COPY main.go .
 COPY go.mod .
 COPY go.sum .
@@ -24,7 +25,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /compute
 FROM scratch AS runtime
 COPY --from=build /compute ./
 COPY --from=build app/openapi.yaml ./api/openapi.yaml
-
+COPY --from=build app/web ./web/
 # Optional:
 # To bind to a TCP port, runtime parameters must be supplied to the docker command.
 # But we can document in the Dockerfile what ports

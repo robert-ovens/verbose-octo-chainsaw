@@ -19,6 +19,7 @@ import (
 // pass the data to a DefaultApiServicer to perform the required actions, then write the service results to the http response.
 type DefaultApiRouter interface {
 	List(http.ResponseWriter, *http.Request)
+	Status(http.ResponseWriter, *http.Request)
 }
 
 // DefaultApiServicer defines the api actions for the DefaultApi service
@@ -27,4 +28,5 @@ type DefaultApiRouter interface {
 // and updated with the logic required for the API.
 type DefaultApiServicer interface {
 	List(context.Context) (ImplResponse, error)
+	Status(context.Context) (ImplResponse, error)
 }

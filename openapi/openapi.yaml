@@ -20,6 +20,15 @@ paths:
       responses:
         200:
           $ref: "#/components/responses/GetInstanceReponse"
+  /status:
+    get:
+      operationId: status
+      summary: status
+      description: |-
+        Get the status of the service
+      responses:
+        200:
+          description: ok
 components:
 
   responses:

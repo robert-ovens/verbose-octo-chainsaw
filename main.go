@@ -14,7 +14,9 @@ func main() {
 	BackendImpl := backend.NewBackendImpl()
 	DefaultApiService := compute.NewDefaultApiService(BackendImpl)
 	DefaultApiController := compute.NewDefaultApiController(DefaultApiService)
-	router := compute.NewRouter(DefaultApiController)
+	DocumentationController := compute.NewDocumentationController()
+	OpenApiController := compute.NewOpenApiController()
+	router := compute.NewRouter(DefaultApiController, DocumentationController, OpenApiController)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 
