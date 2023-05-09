@@ -5,8 +5,8 @@ name: Build, Test, Deploy
 on:
   push:
     branches:
-    - 'main'
-    - 'status'
+    - '*'
+    
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # The "build" workflow
