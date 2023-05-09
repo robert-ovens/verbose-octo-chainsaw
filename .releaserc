@@ -2,7 +2,7 @@
     "branches": [
         "main",
         {
-            "name": "status",
+            "name": "limit",
             "prerelease": true
         }
     ]
