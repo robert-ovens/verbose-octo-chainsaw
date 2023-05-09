@@ -34,3 +34,5 @@ By default the repo build pipeline will only emit an image for the `main` branch
 ```
 
 The version number will be `<versionnumber>-<branchname>-<buildnumber>`
+
+Yay, now has limits.
